@@ -1,0 +1,9 @@
+---
+source: src/lib.rs
+expression: "build_nested_task_list(vec![], \"\")"
+---
+RecursiveTree {
+    key: 0,
+    value: "",
+    children: [],
+}

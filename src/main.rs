@@ -1,3 +1,5 @@
+mod rng;
+
 use clap::Parser;
 use random_task::{build_nested_task_list, get_task, read_input};
 

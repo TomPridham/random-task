@@ -1,0 +1,42 @@
+---
+source: src/lib.rs
+expression: "build_nested_task_list(input, \" \")"
+---
+RecursiveTree {
+    key: 0,
+    value: "",
+    children: [
+        RecursiveTree {
+            key: 0,
+            value: "chore",
+            children: [
+                RecursiveTree {
+                    key: 0,
+                    value: "fold",
+                    children: [],
+                },
+                RecursiveTree {
+                    key: 1,
+                    value: "wash",
+                    children: [],
+                },
+                RecursiveTree {
+                    key: 2,
+                    value: "clean",
+                    children: [],
+                },
+            ],
+        },
+        RecursiveTree {
+            key: 0,
+            value: "fun",
+            children: [
+                RecursiveTree {
+                    key: 0,
+                    value: "code",
+                    children: [],
+                },
+            ],
+        },
+    ],
+}
