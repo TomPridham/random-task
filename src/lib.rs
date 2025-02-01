@@ -3,10 +3,14 @@ mod rng;
 use crate::rng::RngWrapper;
 #[cfg(test)]
 use mockall_double::double;
+#[cfg(target_family = "wasm")]
+use serde::{Deserialize, Serialize};
 use std::{
     fs::File,
     io::{BufRead, BufReader},
 };
+#[cfg(target_family = "wasm")]
+use wasm_bindgen::prelude::*;
 
 pub fn read_input(file_name: String) -> Vec<String> {
     let file = File::open(file_name).expect("file not found");
@@ -16,6 +20,7 @@ pub fn read_input(file_name: String) -> Vec<String> {
         .collect()
 }
 
+#[cfg_attr(target_family = "wasm", wasm_bindgen, derive(Serialize, Deserialize))]
 #[derive(Debug, PartialEq)]
 pub struct RecursiveTree {
     key: usize,
@@ -23,6 +28,7 @@ pub struct RecursiveTree {
     children: Vec<RecursiveTree>,
 }
 
+#[cfg_attr(target_family = "wasm", wasm_bindgen)]
 impl RecursiveTree {
     fn from_vec(arr: Vec<String>) -> Vec<Self> {
         arr.into_iter()
@@ -52,6 +58,8 @@ fn insert_at_deepest_task(
 
     curr_tasks.children.append(tree_tasks);
 }
+
+#[cfg_attr(target_family = "wasm", wasm_bindgen)]
 pub fn build_nested_task_list(raw_tasks: Vec<String>, nesting_delimiter: &str) -> RecursiveTree {
     let mut tasks = RecursiveTree {
         key: 0,
@@ -81,19 +89,25 @@ pub fn build_nested_task_list(raw_tasks: Vec<String>, nesting_delimiter: &str) -
 }
 
 /// get a random task from a recursive list of tasks
-pub fn get_task(tasks: &RecursiveTree, top: bool) -> String {
-    // the base of the tree only has one node
-    let index = if top {
-        0
+// #[cfg_attr(target_family = "wasm", wasm_bindgen)]
+fn get_task_recur(tasks: &RecursiveTree) -> String {
+    let index = RngWrapper::next_u32() as usize % tasks.children.len();
+    let next_tree = &tasks.children[index];
+    if next_tree.children.len() == 0 {
+        return next_tree.value.clone();
     } else {
-        RngWrapper::next_u32() as usize % tasks.children.len()
-    };
-    let t = &tasks.children[index];
-    if t.children.len() == 0 {
-        return t.value.clone();
-    } else {
-        get_task(t, false)
+        get_task_recur(next_tree)
     }
+}
+/// get a random task from a recursive list of tasks
+#[cfg_attr(target_family = "wasm", wasm_bindgen)]
+pub fn get_task(tasks: RecursiveTree) -> String {
+    // the base of the tree only has one node
+    let base_tree = &tasks.children[0];
+    if base_tree.children.len() == 0 {
+        return base_tree.value.clone();
+    }
+    get_task_recur(base_tree)
 }
 
 #[cfg(test)]
@@ -154,7 +168,7 @@ mod test {
             let input = build_nested_task_list(input, " ");
             let ctx = MockRngWrapper::next_u32_context();
             ctx.expect().returning(|| 0);
-            let res = get_task(&input, true);
+            let res = get_task(input);
             assert_eq!(res, "chore");
         }
 
@@ -170,7 +184,7 @@ mod test {
             let input = build_nested_task_list(input, " ");
             let ctx = MockRngWrapper::next_u32_context();
             ctx.expect().returning(|| 0);
-            let res = get_task(&input, true);
+            let res = get_task(input);
             assert_eq!(res, "bedroom");
         }
     }

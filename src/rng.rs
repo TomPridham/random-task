@@ -2,7 +2,7 @@
 #[cfg(test)]
 use mockall::automock;
 
-use rand::RngCore;
+use rand::{rngs::SmallRng, Rng, SeedableRng};
 
 #[allow(dead_code)]
 pub struct RngWrapper;
@@ -11,6 +11,7 @@ pub struct RngWrapper;
 impl RngWrapper {
     #[allow(dead_code)]
     pub fn next_u32() -> u32 {
-        rand::rng().next_u32()
+        let mut rng = SmallRng::from_os_rng();
+        rng.random()
     }
 }

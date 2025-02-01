@@ -15,8 +15,5 @@ fn main() {
 
     let tasks = read_input(args.file_name);
     let tab = "  ";
-    println!(
-        "{}",
-        get_task(&build_nested_task_list(tasks.clone(), tab), true)
-    )
+    println!("{}", get_task(build_nested_task_list(tasks, tab),))
 }
